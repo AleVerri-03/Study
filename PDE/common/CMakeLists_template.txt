@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.12.0)
+
+# Usa il nome della cartella corrente come nome del progetto
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+project(${PROJECT_NAME} LANGUAGES CXX C)
+
+# Cerca e include il file di configurazione comune
+# Tenta di trovarlo due livelli sopra (es. PDE/prof_files/lab-xx -> PDE/common)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../common/cmake-common.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../../common/cmake-common.cmake")
+elseif(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake-common.cmake")
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake-common.cmake")
+else()
+    message(FATAL_ERROR "Impossibile trovare common/cmake-common.cmake. Verifica il percorso.")
+endif()
+
+# Trova tutti i file .cpp nella cartella src
+file(GLOB ALL_SOURCES "src/*.cpp")
+
+# Separa i file "exercise-*.cpp" (eseguibili) dagli altri (librerie/helper)
+set(EXERCISE_SOURCES "")
+set(HELPER_SOURCES "")
+
+foreach(source ${ALL_SOURCES})
+    get_filename_component(fname ${source} NAME)
+    # Se il file inizia con "exercise-", è un main
+    if(fname MATCHES "^exercise-.*\\.cpp$")
+        list(APPEND EXERCISE_SOURCES ${source})
+    else()
+        # Altrimenti è codice di supporto (classi, funzioni, ecc.)
+        list(APPEND HELPER_SOURCES ${source})
+    endif()
+endforeach()
+
+# Se ci sono file di supporto, crea una libreria statica comune per questo lab
+if(HELPER_SOURCES)
+    add_library(lab_common_lib STATIC ${HELPER_SOURCES})
+    deal_ii_setup_target(lab_common_lib)
+endif()
+
+# Crea un eseguibile per ogni file di esercizio trovato
+foreach(ex_src ${EXERCISE_SOURCES})
+    get_filename_component(ex_name ${ex_src} NAME_WE)
+    
+    add_executable(${ex_name} ${ex_src})
+    
+    # Collega la libreria di supporto se esiste
+    if(HELPER_SOURCES)
+        target_link_libraries(${ex_name} lab_common_lib)
+    endif()
+    
+    deal_ii_setup_target(${ex_name})
+endforeach()

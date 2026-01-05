@@ -1,0 +1,3 @@
+/home/verri/Study/PDE/exercise/fac_simile_2/build/CMakeFiles/exercise-01.dir
+/home/verri/Study/PDE/exercise/fac_simile_2/build/CMakeFiles/edit_cache.dir
+/home/verri/Study/PDE/exercise/fac_simile_2/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libPoisson1D.a CMakeFiles/Poisson1D.dir/src/Poisson1D.cpp.o
+/usr/bin/ranlib libPoisson1D.a

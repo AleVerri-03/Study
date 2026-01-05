@@ -1,0 +1,4 @@
+/home/verri/Study/PDE/prof_files/lab-02/build/CMakeFiles/exercise-01.dir
+/home/verri/Study/PDE/prof_files/lab-02/build/CMakeFiles/exercise-02.dir
+/home/verri/Study/PDE/prof_files/lab-02/build/CMakeFiles/edit_cache.dir
+/home/verri/Study/PDE/prof_files/lab-02/build/CMakeFiles/rebuild_cache.dir

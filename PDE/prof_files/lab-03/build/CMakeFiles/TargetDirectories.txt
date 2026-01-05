@@ -1,0 +1,4 @@
+/home/verri/Study/PDE/prof_files/lab-03/build/CMakeFiles/exercise-01.dir
+/home/verri/Study/PDE/prof_files/lab-03/build/CMakeFiles/exercise-01-parallel.dir
+/home/verri/Study/PDE/prof_files/lab-03/build/CMakeFiles/edit_cache.dir
+/home/verri/Study/PDE/prof_files/lab-03/build/CMakeFiles/rebuild_cache.dir
