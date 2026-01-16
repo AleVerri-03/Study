@@ -1,0 +1,4 @@
+/home/verri/Study/PDE/exercise/20250113_01/build/CMakeFiles/Poisson1D.dir
+/home/verri/Study/PDE/exercise/20250113_01/build/CMakeFiles/exercise-01.dir
+/home/verri/Study/PDE/exercise/20250113_01/build/CMakeFiles/edit_cache.dir
+/home/verri/Study/PDE/exercise/20250113_01/build/CMakeFiles/rebuild_cache.dir
