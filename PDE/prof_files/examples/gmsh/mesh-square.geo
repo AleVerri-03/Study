@@ -1,4 +1,4 @@
-a = -1.0; // Lower bound.
+a = 0.0; // Lower bound.
 b =  1.0; // Upper bound.
 
 h = 0.1; // Mesh size.
