@@ -85,6 +85,72 @@ Y_test_LS = m_hat*X_test + q_hat
 
 plt.scatter(X, Y, marker="+", color="black")
 plt.plot(X_test, Y_test, color="black", label="$y_{ex}(x)$")
-plt.plot(X_test, Y_test_LS, color="green", label="LS regression")
+plt.plot(X_test, Y_test_LS, color="green", label="LS regression") # Best linear approximation
 plt.legend()
-plt.show()
+# plt.show()
+
+# RIDGE REGRESSION
+lam = 1.0
+PhiPhiT = Phi @Phi.transpose()
+alpha = np.linalg.solve(PhiPhiT + lam * np.eye(N), Y) # ((Phi.T * Phi) + lam * I)^-1 * y
+w = Phi.transpose() @ alpha
+w2 = np.linalg.solve(Phi.T @ Phi + lam * np.eye(2), Phi.T @ Y)
+Phi_test = np.block([X_test, np.ones((N_test, 1))])
+Y_test_RR = Phi_test @ w
+
+plt.scatter(X, Y, marker="+", color="black", label="data")
+plt.plot(X_test, Y_test, color="black", label="$y_{ex}(x)$")
+plt.plot(X_test, Y_test_LS, color="green", label="LS regression")
+plt.plot(X_test, Y_test_RR, color="red", linestyle="--", label="Ridge regression")
+plt.legend()
+
+#KERNEL REGRESSION
+lam = 1.0
+q = 4.0
+sigma = 1.0
+
+def product_kernel(x1, x2):
+    return x1 * x2 + 1
+
+def high_order_kernel(x1, x2):
+    return (x1 * x2 + 1) ** q
+
+def gaussian_kernel(x1, x2):
+    return np.exp(-(((x1 - x2) / sigma) ** 2) / 2)
+
+def kernel_regression(kernel):
+    N = X.shape[0] # row dimension of X
+    K = np.empty((N, N)) # empy matrix
+    for i in range(N):
+        for j in range(N):
+            K[i, j] = kernel(X[i], X[j]) # Compose the elemets of the matrix usign the operation I want
+    alpha = np.linalg.solve(K + lam * np.eye(N), Y) # Solve (K + lam * I) alpha = y
+    K_test = np.empty((X_test.shape[0], N))
+    for i in range(K_test.shape[0]):
+        for j in range(K_test.shape[1]):
+            K_test[i, j] = kernel(X_test[i], X[j]) # K_test = (x_i_test, x_j)
+    Y_test_KR = K_test @ alpha # Y = K_test * alpha
+    return Y_test_KR
+
+plt.scatter(X, Y, marker="+", color="black", label="data")
+plt.plot(X_test, Y_test, color="black", label="$y_{ex}(x)$")
+plt.plot(
+    X_test,
+    kernel_regression(gaussian_kernel),
+    linestyle="--",
+    label=f"Gaussian KR $\sigma = {sigma}$",
+)
+plt.plot(
+    X_test,
+    kernel_regression(product_kernel),
+    linestyle=":",
+    label=f"Scalar KR $q = 1$",
+)
+plt.plot(
+    X_test,
+    kernel_regression(high_order_kernel),
+    linestyle=":",
+    label=f"Scalar KR $q = {q}$",
+)
+plt.legend()
+plt.ylim([-2, 2])
