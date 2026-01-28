@@ -109,10 +109,10 @@ lam = 1.0
 q = 4.0
 sigma = 1.0
 
-def product_kernel(x1, x2):
+def product_kernel(x1, x2): # Classified based on linear dependencies between x and y
     return x1 * x2 + 1
 
-def high_order_kernel(x1, x2):
+def high_order_kernel(x1, x2): 
     return (x1 * x2 + 1) ** q
 
 def gaussian_kernel(x1, x2):
