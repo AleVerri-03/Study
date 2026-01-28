@@ -156,3 +156,104 @@ x_exact, path_exact = exact_line_search_quadratic(quadratic_A, quadratic_b, x0)
 plot_optimization_2d(
     quadratic, path_exact, [], title="Quadratic Function - Exact Line Search"
 )
+
+# --- Test linear regression with SVG
+
+import numpy as np
+np.random.seed(0)
+
+N = 200
+x_data = np.random.uniform(size=(N,)) * 10 # array 200 val -> between 0 - 10
+y_data = 1.5 * x_data + 3 + np.random.normal(size=(N,)) #x * 1.5 + 3 + Noise
+
+plt.scatter(x_data, y_data) # Preview
+
+from sklearn.model_selection import train_test_split
+
+# Training test function
+X_train, X_test, y_train, y_test = train_test_split(
+    x_data, y_data, test_size=0.2, random_state=42
+)
+
+X_train = jnp.array(X_train)
+X_test = jnp.array(X_test)
+y_train = jnp.array(y_train)
+y_test = jnp.array(y_test)
+
+# Define the linear regression model (Linear Function)
+@jax.jit
+def model(theta, x):
+    return theta[0] + theta[1] * x
+
+# Mean Squared Error loss function
+@jax.jit
+def mse_loss(theta, x, y):
+    y_pred = model(theta, x)
+    return jnp.mean((y_pred - y) ** 2)
+
+grad_mse_loss = jax.jit(jax.grad(mse_loss))
+
+# Update SGD on small part of dataset
+@jax.jit
+def sgd_update(theta, x_batch, y_batch, learning_rate):
+    grads = grad_mse_loss(theta, x_batch, y_batch)
+    return theta - learning_rate * grads
+
+# Stochastic Gradient Descent with mini-batches
+def stochastic_gradient_descent(
+    theta,
+    training_input,
+    training_labels,
+    validation_input,
+    validation_labels,
+    learning_rate=0.01,
+    epochs=100,
+    batch_size=10,
+    state=0,
+):
+    key = jax.random.PRNGKey(state)
+    # Iterate over the number of epochs
+    for epoch in range(epochs):
+        key, subkey = jax.random.split(key)
+        # Shuffle data indices using JAX's random key
+        perm = jax.random.permutation(subkey, len(training_input))
+        # Process data in mini-batches
+        for i in range(0, len(training_input), batch_size):
+            batch_idx = perm[i : i + batch_size]
+            x_batch = training_input[batch_idx]
+            y_batch = training_labels[batch_idx]
+            # Perform SGD update
+            theta = sgd_update(theta, x_batch, y_batch, learning_rate)
+        # Print the loss every 10 epochs
+        if epoch % 10 == 0:
+            loss = mse_loss(theta, validation_input, validation_labels)
+            print(f"Epoch {epoch}, Loss: {loss:.4f} (test)")
+    return theta
+
+# Run the Stochastic Gradient Descent
+# Initial guess for theta_0 (intercept) and theta_1 (slope)
+theta = jnp.array([0.0, 0.0])
+theta_opt = stochastic_gradient_descent(
+    theta, X_train, y_train, X_test, y_test, learning_rate=0.01, epochs=100, batch_size=10
+)
+print(
+    f"Optimized parameters: theta = [{theta_opt[0]:.2f}, {theta_opt[1]:.2f}]"
+)
+
+# After the training loop, use the optimized parameters to plot the regression line
+# Generate predictions using the optimized parameters
+y_pred = model(theta_opt, x_data)
+
+# Plot the original data points
+plt.scatter(X_train, y_train, label="Training points")
+plt.scatter(X_test, y_test, label="Test points")
+
+# Plot the regression line
+plt.plot(x_data, y_pred, label="Fitted line", color="black", linewidth=2)
+
+# Add labels and a legend
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Linear Regression using Stochastic Gradient Descent (SDG)")
+plt.legend()
+plt.show()
